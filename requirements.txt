@@ -1,0 +1,9 @@
+moviepy==1.0.3
+edge-tts>=7.0.0
+diffusers>=0.30.0
+transformers>=4.40.0
+accelerate>=0.30.0
+torch>=2.0.0
+ollama
+Pillow
+numpy
