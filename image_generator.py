@@ -3,7 +3,7 @@ import torch
 from diffusers import StableDiffusionPipeline
 from config import (
     SD_MODEL, SD_WIDTH, SD_HEIGHT, FIXED_SEED, NUM_INFERENCE_STEPS,
-    OUTPUT_DIR, NEGATIVE_PROMPT
+    OUTPUT_DIR, NEGATIVE_PROMPT, LORA_PATH, LORA_SCALE
 )
 
 
@@ -14,7 +14,14 @@ def load_pipeline():
         torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
         safety_checker=None,
         requires_safety_checker=False,
-    ).to("cuda" if torch.cuda.is_available() else "cpu")
+    )
+
+    if os.path.exists(LORA_PATH):
+        print(f"Loading LoRA weights from: {LORA_PATH}")
+        pipe.load_lora_weights(LORA_PATH)
+        pipe.fuse_lora(lora_scale=LORA_SCALE)
+
+    pipe = pipe.to("cuda" if torch.cuda.is_available() else "cpu")
 
     if torch.cuda.is_available():
         pipe.enable_attention_slicing()
@@ -25,8 +32,6 @@ def load_pipeline():
 def generate_images(segments, pipe=None):
     if pipe is None:
         pipe = load_pipeline()
-    else:
-        pipe = pipe
 
     generator = None
     if FIXED_SEED is not None:

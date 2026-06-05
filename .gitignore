@@ -2,5 +2,7 @@ output/
 __pycache__/
 *.pyc
 assets/bgm.mp3
+models/
 venv/
 .venv/
+.txt

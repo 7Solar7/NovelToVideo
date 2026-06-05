@@ -1,5 +1,5 @@
 import re
-from config import OLLAMA_MODEL, OLLAMA_HOST, STYLE_PREFIX, FULL_STYLE_DESCRIPTION
+from config import OLLAMA_MODEL, OLLAMA_HOST, STYLE_PREFIX, FULL_STYLE_DESCRIPTION, TRIGGER_WORD
 
 
 def _get_ollama_client():
@@ -29,6 +29,7 @@ def generate_prompt(segment_text: str, character_sheet: dict = None) -> str:
         f"You are a visual scene director. For the following narration segment, "
         f"create a detailed visual prompt for an AI image generator.\n\n"
         f"The visual style must match:\n{FULL_STYLE_DESCRIPTION}\n\n"
+        f"IMPORTANT: Include the style trigger word '{TRIGGER_WORD}' naturally in your prompt.\n\n"
         f"Describe only the visual scene — characters, setting, lighting, colors, "
         f"composition. Keep it concise (under 35 words).\n\n"
         f"Narration: '{segment_text}'\n\nVisual prompt:"
@@ -52,6 +53,8 @@ def generate_prompt(segment_text: str, character_sheet: dict = None) -> str:
 
     raw_prompt = response["message"]["content"].strip()
     cleaned = clean_prompt(raw_prompt)
+    if TRIGGER_WORD not in cleaned.lower():
+        cleaned = f"{TRIGGER_WORD}, {cleaned}"
     return STYLE_PREFIX + cleaned
 
 
